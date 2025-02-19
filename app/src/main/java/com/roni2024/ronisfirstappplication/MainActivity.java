@@ -6,13 +6,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.View;
+import android.view.MenuItem;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.SeekBar;
 import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     Button b1, b2, bL;
@@ -28,10 +28,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
+
+        // Register for Context Menu (make sure to add to the ImageView or another view)
+        registerForContextMenu(iv); // This registers the ImageView to show the context menu when long-clicked
     }
 
     private void initViews() {
-        // מציאת כפתור 1 והגדרת קליק
+        // Finding buttons and setting onClickListeners
         b1 = findViewById(R.id.btn1);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // מציאת כפתור 2 והגדרת קליק
         b2 = findViewById(R.id.btn2);
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,43 +53,57 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // מציאת כפתור לינארי והגדרת קליק
         bL = findViewById(R.id.btnLinear);
         bL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // התחברות לפעילות NoamActivity2
+                // Transition to NoamActivity2
                 Intent intent = new Intent(MainActivity.this, NoamActivity2.class);
                 startActivity(intent);
                 finish();
             }
         });
 
+        // Finding ImageView and SeekBar, setting alpha change listener
+        iv = findViewById(R.id.iv);
+        sb = findViewById(R.id.sb);
 
-        // מציאת ImageView והגדרת SeekBar
-        iv = findViewById(R.id.iv); // הוודא ש-ID תואם ל-ImageView ב-XML
-        sb = findViewById(R.id.sb); // הוודא ש-ID תואם ל-SeekBar ב-XML
-
-        // ברירת המחדל היא 100 (שקיפות מלאה)
+        // Default transparency value
         sb.setProgress(100);
 
-        // הגדרת מאזין ל-SeekBar לשנות את השקיפות
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                float alpha = (float) i / 100; // מחשבים את הערך לשקיפות
-                iv.setAlpha(alpha); // עדכון השקיפות של התמונה
+                float alpha = (float) i / 100;
+                iv.setAlpha(alpha);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // כאן אפשר להוסיף לוגיקה אם צריך
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // כאן אפשר להוסיף לוגיקה אם צריך
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+    }
+
+    // This method creates the context menu
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.iv) { // Check if the long-clicked view is the ImageView
+            getMenuInflater().inflate(R.menu.menu_main, menu); // This inflates the menu resource
+        }
+    }
+
+    // This method handles the context menu item selection
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.new_item) {
+            // Start NewActivity when 'new_item' is selected
+            Intent intent = new Intent(this, NewActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onContextItemSelected(item);
     }
 }
